@@ -6,9 +6,9 @@ import (
 	"os"
 	"strings"
 
-	tea "github.com/charmbracelet/bubbletea"
 	"github.com/alameen/lazycommands/internal/app"
 	"github.com/alameen/lazycommands/internal/executor"
+	tea "github.com/charmbracelet/bubbletea"
 )
 
 func main() {
@@ -53,6 +53,9 @@ func main() {
 
 	// Get the final model and print summary
 	if m, ok := finalModel.(app.Model); ok {
+		// Close the logger before exit
+		m.CloseLogger()
+
 		fmt.Println() // Add spacing after UI
 		printSummary(m)
 		os.Exit(m.ExitCode())
@@ -84,6 +87,11 @@ func printSummary(m app.Model) {
 		fmt.Printf("❌ Execution failed: %d/%d completed, %d failed, %d skipped\n", completed, total, failed, skipped)
 	} else {
 		fmt.Printf("✅ All commands completed successfully (%d/%d)\n", completed, total)
+	}
+
+	// Print log file path if available
+	if logPath := m.LoggerPath(); logPath != "" {
+		fmt.Printf("\n📝 Debug log available at: %s\n", logPath)
 	}
 }
 

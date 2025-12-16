@@ -2,6 +2,10 @@ package executor
 
 import (
 	"context"
+	"fmt"
+	"os"
+	"path/filepath"
+	"strings"
 	"time"
 )
 
@@ -36,16 +40,18 @@ func (s CommandStatus) String() string {
 
 // Command wraps a shell command with its execution state
 type Command struct {
-	ID        int
-	Raw       string        // Original command string
-	Status    CommandStatus // Current execution status
-	Output    []string      // Captured stdout/stderr lines
-	ExitCode  int           // Exit code of the command
-	StartTime time.Time     // When the command started
-	EndTime   time.Time     // When the command finished
-	Error     error         // Error if the command failed
-	ctx       context.Context
-	cancel    context.CancelFunc
+	ID          int
+	Raw         string        // Original command string
+	Status      CommandStatus // Current execution status
+	Output      []string      // Captured stdout/stderr lines
+	ExitCode    int           // Exit code of the command
+	StartTime   time.Time     // When the command started
+	EndTime     time.Time     // When the command finished
+	Error       error         // Error if the command failed
+	WorkingDir  string        // Working directory for this command
+	IsCdCommand bool          // True if this is a cd command
+	ctx         context.Context
+	cancel      context.CancelFunc
 }
 
 const maxOutputLines = 1000
@@ -89,4 +95,51 @@ func (c *Command) Duration() time.Duration {
 		return time.Since(c.StartTime)
 	}
 	return c.EndTime.Sub(c.StartTime)
+}
+
+// ParseCdCommand checks if a command is a cd command and extracts the target directory.
+// Only supports absolute paths (no relative paths, no ~).
+// Returns: (isCd, targetDir, error)
+func ParseCdCommand(cmdStr string) (bool, string, error) {
+	// Trim whitespace
+	trimmed := strings.TrimSpace(cmdStr)
+
+	// Check if it starts with "cd "
+	if !strings.HasPrefix(trimmed, "cd ") {
+		return false, "", nil
+	}
+
+	// Extract the directory argument
+	parts := strings.Fields(trimmed)
+	if len(parts) < 2 {
+		return true, "", fmt.Errorf("cd: missing directory argument")
+	}
+	if len(parts) > 2 {
+		return true, "", fmt.Errorf("cd: too many arguments")
+	}
+
+	targetDir := parts[1]
+
+	// Remove quotes if present
+	targetDir = strings.Trim(targetDir, `"'`)
+
+	// Validate it's an absolute path
+	if !filepath.IsAbs(targetDir) {
+		return true, "", fmt.Errorf("cd: only absolute paths are supported (got: %s)", targetDir)
+	}
+
+	// Check if directory exists
+	info, err := os.Stat(targetDir)
+	if err != nil {
+		if os.IsNotExist(err) {
+			return true, "", fmt.Errorf("cd: directory does not exist: %s", targetDir)
+		}
+		return true, "", fmt.Errorf("cd: cannot access directory: %v", err)
+	}
+
+	if !info.IsDir() {
+		return true, "", fmt.Errorf("cd: not a directory: %s", targetDir)
+	}
+
+	return true, targetDir, nil
 }

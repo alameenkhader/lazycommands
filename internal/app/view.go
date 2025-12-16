@@ -43,6 +43,12 @@ func (m Model) renderCommandList() string {
 	b.WriteString("\n")
 	b.WriteString(ui.PendingStyle.Render("Press q to quit"))
 
+	// Show log file path if available
+	if logPath := m.LoggerPath(); logPath != "" {
+		b.WriteString("\n")
+		b.WriteString(ui.PendingStyle.Render(fmt.Sprintf("Debug log: %s", logPath)))
+	}
+
 	return b.String()
 }
 
@@ -92,6 +98,12 @@ func (m Model) renderFailedCommandOutput() string {
 	}
 
 	b.WriteString("\n" + ui.ErrorStyle.Render("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━") + "\n")
+
+	// Show log file path if available
+	if logPath := m.LoggerPath(); logPath != "" {
+		b.WriteString("\n")
+		b.WriteString(ui.PendingStyle.Render(fmt.Sprintf("Full debug log: %s", logPath)))
+	}
 
 	return b.String()
 }

@@ -1,18 +1,23 @@
 package app
 
 import (
-	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/bubbles/spinner"
+	"os"
+
 	"github.com/alameen/lazycommands/internal/executor"
 	"github.com/alameen/lazycommands/internal/keys"
+	"github.com/alameen/lazycommands/internal/log"
+	"github.com/charmbracelet/bubbles/spinner"
+	tea "github.com/charmbracelet/bubbletea"
 )
 
 // Model represents the Bubble Tea application state
 type Model struct {
 	// Core state
 	commands      []*executor.Command
-	executing     int // Index of currently executing command (-1 if none)
+	executing     int               // Index of currently executing command (-1 if none)
 	failedCommand *executor.Command // The command that failed (if any)
+	workingDir    string            // Current working directory for command execution
+	logger        *log.Logger       // Debug logger for command execution
 
 	// UI state
 	width   int
@@ -30,10 +35,25 @@ func NewModel(commands []*executor.Command) Model {
 	s.Spinner = spinner.Line
 	s.Style = s.Style.Foreground(s.Style.GetForeground())
 
+	// Get initial working directory
+	cwd, err := os.Getwd()
+	if err != nil {
+		cwd = "" // Will use process default
+	}
+
+	// Create logger (continue if it fails)
+	logger, err := log.NewLogger()
+	if err != nil {
+		// Log creation failed, but continue without logging
+		logger = nil
+	}
+
 	return Model{
 		commands:      commands,
 		executing:     -1,
 		failedCommand: nil,
+		workingDir:    cwd,
+		logger:        logger,
 		keys:          keys.DefaultKeyMap(),
 		ready:         false,
 		spinner:       s,
@@ -77,6 +97,11 @@ func (m *Model) SkipRemaining() {
 	for _, cmd := range m.commands {
 		if cmd.Status == executor.StatusPending {
 			cmd.Status = executor.StatusSkipped
+
+			// Log skipped command
+			if m.logger != nil {
+				m.logger.LogCommandSkipped(cmd)
+			}
 		}
 	}
 }
@@ -89,4 +114,19 @@ func (m Model) Commands() []*executor.Command {
 // Spinner returns the spinner model
 func (m Model) Spinner() spinner.Model {
 	return m.spinner
+}
+
+// LoggerPath returns the path to the log file, or empty string if no logger
+func (m Model) LoggerPath() string {
+	if m.logger == nil {
+		return ""
+	}
+	return m.logger.Path()
+}
+
+// CloseLogger closes the logger if it exists
+func (m *Model) CloseLogger() {
+	if m.logger != nil {
+		m.logger.Close()
+	}
 }

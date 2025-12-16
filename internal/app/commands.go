@@ -1,8 +1,8 @@
 package app
 
 import (
-	tea "github.com/charmbracelet/bubbletea"
 	"github.com/alameen/lazycommands/internal/executor"
+	tea "github.com/charmbracelet/bubbletea"
 )
 
 // executeNext starts executing the next pending command
@@ -14,7 +14,7 @@ func (m *Model) executeNext() tea.Cmd {
 			m.executing = i
 			// Return batch: start execution + start ticker for UI refresh
 			return tea.Batch(
-				executor.ExecuteCommand(i, cmd),
+				executor.ExecuteCommand(i, cmd, m.workingDir, m.logger),
 				executor.Ticker(),
 			)
 		}

@@ -1,9 +1,9 @@
 package app
 
 import (
-	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/bubbles/key"
 	"github.com/alameen/lazycommands/internal/executor"
+	"github.com/charmbracelet/bubbles/key"
+	tea "github.com/charmbracelet/bubbletea"
 )
 
 // Update handles incoming messages and updates the model
@@ -40,6 +40,11 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case executor.CommandCompletedMsg:
 		if msg.Index >= 0 && msg.Index < len(m.commands) {
 			cmd := m.commands[msg.Index]
+
+			// Update working directory if changed
+			if msg.NewDir != "" {
+				m.workingDir = msg.NewDir
+			}
 
 			if msg.Error != nil {
 				// Command failed - stop execution and show error
