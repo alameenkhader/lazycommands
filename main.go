@@ -6,9 +6,9 @@ import (
 	"os"
 	"strings"
 
-	"github.com/alameen/lazycommands/internal/app"
-	"github.com/alameen/lazycommands/internal/executor"
-	"github.com/alameen/lazycommands/internal/version"
+	"github.com/alameenkhader/lazycommands/internal/app"
+	"github.com/alameenkhader/lazycommands/internal/executor"
+	"github.com/alameenkhader/lazycommands/internal/version"
 	tea "github.com/charmbracelet/bubbletea"
 )
 

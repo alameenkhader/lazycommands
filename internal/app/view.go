@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/alameen/lazycommands/internal/ui"
+	"github.com/alameenkhader/lazycommands/internal/ui"
 )
 
 // View renders the UI

@@ -1,7 +1,7 @@
 package app
 
 import (
-	"github.com/alameen/lazycommands/internal/executor"
+	"github.com/alameenkhader/lazycommands/internal/executor"
 	tea "github.com/charmbracelet/bubbletea"
 )
 

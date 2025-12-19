@@ -19,5 +19,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Cross-platform support (macOS, Linux, Windows)
 - Version information embedded in binary
 
-[Unreleased]: https://github.com/alameen/lazycommands/compare/v0.1.0...HEAD
-[0.1.0]: https://github.com/alameen/lazycommands/releases/tag/v0.1.0
+[Unreleased]: https://github.com/alameenkhader/lazycommands/compare/v0.1.0...HEAD
+[0.1.0]: https://github.com/alameenkhader/lazycommands/releases/tag/v0.1.0

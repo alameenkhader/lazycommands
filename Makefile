@@ -5,9 +5,9 @@ VERSION ?= $(shell git describe --tags --always --dirty 2>/dev/null || echo "dev
 BUILD_DATE := $(shell date -u '+%Y-%m-%d_%H:%M:%S')
 GIT_COMMIT := $(shell git rev-parse --short HEAD 2>/dev/null || echo "unknown")
 
-LDFLAGS := -X github.com/alameen/lazycommands/internal/version.Version=$(VERSION) \
-           -X github.com/alameen/lazycommands/internal/version.BuildDate=$(BUILD_DATE) \
-           -X github.com/alameen/lazycommands/internal/version.GitCommit=$(GIT_COMMIT)
+LDFLAGS := -X github.com/alameenkhader/lazycommands/internal/version.Version=$(VERSION) \
+           -X github.com/alameenkhader/lazycommands/internal/version.BuildDate=$(BUILD_DATE) \
+           -X github.com/alameenkhader/lazycommands/internal/version.GitCommit=$(GIT_COMMIT)
 
 build:
 	@echo "Building lazycommands $(VERSION)..."

@@ -7,7 +7,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/alameen/lazycommands/internal/executor"
+	"github.com/alameenkhader/lazycommands/internal/executor"
 )
 
 // Logger handles writing command execution logs to a temporary file

@@ -1,4 +1,4 @@
-module github.com/alameen/lazycommands
+module github.com/alameenkhader/lazycommands
 
 go 1.25.5
 

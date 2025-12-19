@@ -3,9 +3,9 @@ package app
 import (
 	"os"
 
-	"github.com/alameen/lazycommands/internal/executor"
-	"github.com/alameen/lazycommands/internal/keys"
-	"github.com/alameen/lazycommands/internal/log"
+	"github.com/alameenkhader/lazycommands/internal/executor"
+	"github.com/alameenkhader/lazycommands/internal/keys"
+	"github.com/alameenkhader/lazycommands/internal/log"
 	"github.com/charmbracelet/bubbles/spinner"
 	tea "github.com/charmbracelet/bubbletea"
 )

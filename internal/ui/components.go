@@ -1,7 +1,7 @@
 package ui
 
 import (
-	"github.com/alameen/lazycommands/internal/executor"
+	"github.com/alameenkhader/lazycommands/internal/executor"
 )
 
 // StatusIcon returns the icon for a given command status
