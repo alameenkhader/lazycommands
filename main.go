@@ -8,10 +8,17 @@ import (
 
 	"github.com/alameen/lazycommands/internal/app"
 	"github.com/alameen/lazycommands/internal/executor"
+	"github.com/alameen/lazycommands/internal/version"
 	tea "github.com/charmbracelet/bubbletea"
 )
 
 func main() {
+	// Handle version flag
+	if len(os.Args) == 2 && (os.Args[1] == "--version" || os.Args[1] == "-v") {
+		printVersion()
+		os.Exit(0)
+	}
+
 	var commands []*executor.Command
 
 	// Check if stdin has data (piped input)
@@ -134,4 +141,15 @@ func printUsage() {
 	fmt.Println("  # Using pipe:")
 	fmt.Println("  cat commands.txt | lazycommands")
 	fmt.Println()
+}
+
+// printVersion prints version information
+func printVersion() {
+	fmt.Printf("lazycommands version %s\n", version.Version)
+	if version.GitCommit != "unknown" {
+		fmt.Printf("  commit: %s\n", version.GitCommit)
+	}
+	if version.BuildDate != "unknown" {
+		fmt.Printf("  built: %s\n", version.BuildDate)
+	}
 }
