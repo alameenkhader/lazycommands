@@ -145,11 +145,5 @@ func printUsage() {
 
 // printVersion prints version information
 func printVersion() {
-	fmt.Printf("lazycommands version %s\n", version.Version)
-	if version.GitCommit != "unknown" {
-		fmt.Printf("  commit: %s\n", version.GitCommit)
-	}
-	if version.BuildDate != "unknown" {
-		fmt.Printf("  built: %s\n", version.BuildDate)
-	}
+	fmt.Printf("lazycommands %s\n", version.Version)
 }
