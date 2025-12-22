@@ -4,7 +4,9 @@ import (
 	"bufio"
 	"fmt"
 	"io"
+	"os"
 	"os/exec"
+	"strings"
 	"sync"
 	"time"
 
@@ -100,8 +102,26 @@ func ExecuteCommand(index int, cmd *Command, workingDir string, logger Logger) t
 		}
 
 		// Regular command execution
-		// Create the exec command using sh -c to support shell features
-		execCmd := exec.CommandContext(cmd.ctx, "sh", "-c", cmd.Raw)
+		// Use the user's shell to support aliases and other shell features
+		shell := os.Getenv("SHELL")
+		if shell == "" {
+			shell = "/bin/sh"
+		}
+
+		// Build command that sources shell config to load aliases
+		cmdString := cmd.Raw
+
+		// For bash/zsh, prepend source command and use eval to expand aliases
+		// Also append pwd output to capture directory changes (including from cd aliases)
+		if strings.Contains(shell, "bash") {
+			// Source .bashrc if it exists and use eval to expand aliases
+			cmdString = "[ -f ~/.bashrc ] && source ~/.bashrc; eval " + shellQuote(cmdString) + "; echo \"__LAZYCOMMANDS_PWD__:$PWD\""
+		} else if strings.Contains(shell, "zsh") {
+			// Source .zshrc if it exists and use eval to expand aliases
+			cmdString = "[ -f ~/.zshrc ] && source ~/.zshrc; eval " + shellQuote(cmdString) + "; echo \"__LAZYCOMMANDS_PWD__:$PWD\""
+		}
+
+		execCmd := exec.CommandContext(cmd.ctx, shell, "-c", cmdString)
 
 		// Set working directory if specified
 		if workingDir != "" {
@@ -201,6 +221,9 @@ func ExecuteCommand(index int, cmd *Command, workingDir string, logger Logger) t
 
 		cmd.ExitCode = exitCode
 
+		// Extract working directory from output if present
+		newDir := extractWorkingDir(cmd)
+
 		// Log command end
 		if logger != nil {
 			logger.LogCommandEnd(cmd)
@@ -210,7 +233,7 @@ func ExecuteCommand(index int, cmd *Command, workingDir string, logger Logger) t
 			Index:    index,
 			ExitCode: exitCode,
 			Error:    err,
-			NewDir:   "", // No directory change for regular commands
+			NewDir:   newDir,
 		}
 	}
 }
@@ -237,4 +260,38 @@ func Ticker() tea.Cmd {
 	return tea.Tick(time.Millisecond*100, func(t time.Time) tea.Msg {
 		return TickMsg(t)
 	})
+}
+
+// shellQuote quotes a string for safe use in shell eval
+func shellQuote(s string) string {
+	// Replace single quotes with '\'' (end quote, escaped quote, start quote)
+	s = strings.ReplaceAll(s, "'", "'\\''")
+	return "'" + s + "'"
+}
+
+// extractWorkingDir extracts and removes the working directory marker from command output
+func extractWorkingDir(cmd *Command) string {
+	const marker = "__LAZYCOMMANDS_PWD__:"
+
+	// Check if output has the marker in the last few lines
+	if len(cmd.Output) == 0 {
+		return ""
+	}
+
+	// Look through the last few lines for the marker
+	for i := len(cmd.Output) - 1; i >= 0 && i >= len(cmd.Output)-5; i-- {
+		line := cmd.Output[i]
+		if strings.HasPrefix(line, marker) {
+			// Extract the directory path
+			dir := strings.TrimPrefix(line, marker)
+			dir = strings.TrimSpace(dir)
+
+			// Remove this line from output
+			cmd.Output = append(cmd.Output[:i], cmd.Output[i+1:]...)
+
+			return dir
+		}
+	}
+
+	return ""
 }
