@@ -67,39 +67,6 @@ Then run:
 cat deploy-commands.txt | lazycommands
 ```
 
-## Development
-
-### Project Structure
-
-```
-lazycommands/
-├── main.go                         # Entry point
-├── internal/
-│   ├── app/                        # Bubble Tea application
-│   │   ├── model.go               # State model
-│   │   ├── update.go              # Update logic
-│   │   ├── view.go                # UI rendering
-│   │   └── commands.go            # Command helpers
-│   ├── executor/                   # Command execution
-│   │   ├── executor.go            # Execution engine
-│   │   └── command.go             # Command state
-│   ├── ui/                         # UI components
-│   │   ├── layout.go              # Layout calculations
-│   │   ├── styles.go              # Styling
-│   │   └── components.go          # Reusable components
-│   └── keys/                       # Keyboard handling
-│       └── keymap.go              # Key bindings
-├── Makefile                        # Build automation
-└── README.md                       # This file
-```
-
-### Building
-
-```bash
-make build           # Build binary to bin/lazycommands
-make install         # Install to $GOPATH/bin
-```
-
 ## Future Enhancements
 
 - **Parallel execution**: Run multiple commands concurrently with `-parallel` flag
