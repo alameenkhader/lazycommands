@@ -115,10 +115,10 @@ func ExecuteCommand(index int, cmd *Command, workingDir string, logger Logger) t
 		// Also append pwd output to capture directory changes (including from cd aliases)
 		if strings.Contains(shell, "bash") {
 			// Source .bashrc if it exists and use eval to expand aliases
-			cmdString = "[ -f ~/.bashrc ] && source ~/.bashrc; eval " + shellQuote(cmdString) + "; echo \"__LAZYCOMMANDS_PWD__:$PWD\""
+			cmdString = "[ -f ~/.bashrc ] && source ~/.bashrc; eval " + shellQuote(cmdString) + "; __lc_exit=$?; echo \"__LAZYCOMMANDS_PWD__:$PWD\"; exit $__lc_exit"
 		} else if strings.Contains(shell, "zsh") {
 			// Source .zshrc if it exists and use eval to expand aliases
-			cmdString = "[ -f ~/.zshrc ] && source ~/.zshrc; eval " + shellQuote(cmdString) + "; echo \"__LAZYCOMMANDS_PWD__:$PWD\""
+			cmdString = "[ -f ~/.zshrc ] && source ~/.zshrc; eval " + shellQuote(cmdString) + "; __lc_exit=$?; echo \"__LAZYCOMMANDS_PWD__:$PWD\"; exit $__lc_exit"
 		}
 
 		execCmd := exec.CommandContext(cmd.ctx, shell, "-c", cmdString)

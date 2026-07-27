@@ -8,6 +8,7 @@ import (
 
 	"github.com/alameenkhader/lazycommands/internal/app"
 	"github.com/alameenkhader/lazycommands/internal/executor"
+	"github.com/alameenkhader/lazycommands/internal/ui"
 	"github.com/alameenkhader/lazycommands/internal/version"
 	tea "github.com/charmbracelet/bubbletea"
 )
@@ -49,7 +50,16 @@ func main() {
 	model := app.NewModel(commands)
 
 	// Create the program (no alt screen - keep output in terminal)
-	p := tea.NewProgram(model)
+	// When commands were piped via stdin, keyboard input must come from
+	// the terminal instead, otherwise key presses (q, ctrl+c) are never seen.
+	opts := []tea.ProgramOption{}
+	if hasStdin {
+		if tty, err := os.Open("/dev/tty"); err == nil {
+			defer tty.Close()
+			opts = append(opts, tea.WithInput(tty))
+		}
+	}
+	p := tea.NewProgram(model, opts...)
 
 	// Run the program
 	finalModel, err := p.Run()
@@ -92,13 +102,11 @@ func printSummary(m app.Model) {
 
 	if failed > 0 {
 		fmt.Printf("❌ Execution failed: %d/%d completed, %d failed, %d skipped\n", completed, total, failed, skipped)
-	} else {
-		fmt.Printf("✅ All commands completed successfully (%d/%d)\n", completed, total)
 	}
 
 	// Print log file path if available
 	if logPath := m.LoggerPath(); logPath != "" {
-		fmt.Printf("\n📝 Debug log available at: %s\n", logPath)
+		fmt.Println(ui.MutedStyle.Render(fmt.Sprintf("Debug log: %s", logPath)))
 	}
 }
 

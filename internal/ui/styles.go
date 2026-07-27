@@ -34,6 +34,11 @@ var (
 	PendingStyle = lipgloss.NewStyle().
 			Foreground(colorGray)
 
+	// MutedStyle is used for de-emphasized info like the debug log path
+	MutedStyle = lipgloss.NewStyle().
+			Foreground(lipgloss.Color("238")).
+			Faint(true)
+
 	// SkippedStyle is used for skipped commands
 	SkippedStyle = lipgloss.NewStyle().
 			Foreground(colorGray).

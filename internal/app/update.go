@@ -1,6 +1,9 @@
 package app
 
 import (
+	"os"
+	"os/exec"
+
 	"github.com/alameenkhader/lazycommands/internal/executor"
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
@@ -27,6 +30,18 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				}
 			}
 			return m, tea.Quit
+		}
+
+		// Open the debug log in the user's pager
+		if key.Matches(msg, m.keys.OpenLog) {
+			if logPath := m.LoggerPath(); logPath != "" {
+				pager := os.Getenv("PAGER")
+				if pager == "" {
+					pager = "less"
+				}
+				c := exec.Command(pager, logPath)
+				return m, tea.ExecProcess(c, func(err error) tea.Msg { return nil })
+			}
 		}
 
 	case executor.TickMsg:

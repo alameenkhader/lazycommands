@@ -13,20 +13,31 @@ func (m Model) View() string {
 		return "Initializing..."
 	}
 
-	// If there's a failed command, show its output
+	var b strings.Builder
+
+	// Always show the command list so statuses stay visible
+	b.WriteString(m.renderCommandList())
+
+	// If a command failed, show its output below the list
 	if m.failedCommand != nil {
-		return m.renderFailedCommandOutput()
+		b.WriteString("\n")
+		b.WriteString(m.renderFailedCommandOutput())
 	}
 
-	// Otherwise, show the command list
-	return m.renderCommandList()
+	// Add keyboard hints at the bottom
+	b.WriteString("\n")
+	hint := "q quit"
+	if m.LoggerPath() != "" {
+		hint += " · o debug log"
+	}
+	b.WriteString(ui.MutedStyle.Render(hint))
+
+	return b.String()
 }
 
 // renderCommandList renders the list of commands with their status icons
 func (m Model) renderCommandList() string {
 	var b strings.Builder
-
-	// b.WriteString(ui.TitleStyle.Render("LazyCommands") + "\n\n")
 
 	for i, cmd := range m.commands {
 		// Check if this is the currently running command
@@ -39,16 +50,6 @@ func (m Model) renderCommandList() string {
 		b.WriteString(line + "\n")
 	}
 
-	// Add keyboard hints at the bottom
-	b.WriteString("\n")
-	b.WriteString(ui.PendingStyle.Render("Press q to quit"))
-
-	// Show log file path if available
-	if logPath := m.LoggerPath(); logPath != "" {
-		b.WriteString("\n")
-		b.WriteString(ui.PendingStyle.Render(fmt.Sprintf("Debug log: %s", logPath)))
-	}
-
 	return b.String()
 }
 
@@ -58,26 +59,18 @@ func (m Model) renderFailedCommandOutput() string {
 
 	var b strings.Builder
 
-	b.WriteString(ui.ErrorStyle.Render("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━") + "\n")
-	b.WriteString(ui.ErrorStyle.Render("Command Failed!") + "\n")
-	b.WriteString(ui.ErrorStyle.Render("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━") + "\n\n")
-
-	b.WriteString(fmt.Sprintf("Command: %s\n", ui.ErrorStyle.Render(cmd.Raw)))
-	b.WriteString(fmt.Sprintf("Exit Code: %s\n\n", ui.ErrorStyle.Render(fmt.Sprintf("%d", cmd.ExitCode))))
+	b.WriteString(ui.ErrorStyle.Render(fmt.Sprintf("✗ Failed: %s (exit code %d)", cmd.Raw, cmd.ExitCode)) + "\n")
 
 	if cmd.Error != nil {
-		b.WriteString(fmt.Sprintf("Error: %s\n\n", ui.ErrorStyle.Render(cmd.Error.Error())))
+		b.WriteString(ui.ErrorStyle.Render(fmt.Sprintf("  Error: %s", cmd.Error.Error())) + "\n")
 	}
 
-	// Show command output
+	// Show command output, bounded so the command list above stays visible.
+	// Reserve space for the list, the failure header, and the footer hints.
 	if len(cmd.Output) > 0 {
-		b.WriteString(ui.TitleStyle.Render("Output:") + "\n")
-		b.WriteString(strings.Repeat("─", 60) + "\n")
-
-		// Show all output (or last N lines if too long)
-		maxLines := m.height - 15 // Reserve space for header
-		if maxLines < 20 {
-			maxLines = 20
+		maxLines := m.height - len(m.commands) - 8
+		if maxLines < 5 {
+			maxLines = 5
 		}
 
 		startIdx := 0
@@ -85,24 +78,16 @@ func (m Model) renderFailedCommandOutput() string {
 			startIdx = len(cmd.Output) - maxLines
 		}
 
+		b.WriteString(strings.Repeat("─", 60) + "\n")
+		if startIdx > 0 {
+			b.WriteString(ui.PendingStyle.Render(fmt.Sprintf("... (%d earlier lines in debug log)", startIdx)) + "\n")
+		}
 		for i := startIdx; i < len(cmd.Output); i++ {
 			b.WriteString(cmd.Output[i] + "\n")
 		}
-
-		// Show indicator if there's more output
-		if startIdx > 0 {
-			b.WriteString(ui.PendingStyle.Render(fmt.Sprintf("\n... (%d more lines above)", startIdx)))
-		}
+		b.WriteString(strings.Repeat("─", 60) + "\n")
 	} else {
 		b.WriteString("(No output captured)\n")
-	}
-
-	b.WriteString("\n" + ui.ErrorStyle.Render("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━") + "\n")
-
-	// Show log file path if available
-	if logPath := m.LoggerPath(); logPath != "" {
-		b.WriteString("\n")
-		b.WriteString(ui.PendingStyle.Render(fmt.Sprintf("Full debug log: %s", logPath)))
 	}
 
 	return b.String()

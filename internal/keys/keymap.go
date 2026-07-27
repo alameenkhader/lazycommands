@@ -9,6 +9,7 @@ type KeyMap struct {
 	Continue key.Binding
 	Stop     key.Binding
 	Quit     key.Binding
+	OpenLog  key.Binding
 }
 
 // DefaultKeyMap returns the default key bindings
@@ -33,6 +34,10 @@ func DefaultKeyMap() KeyMap {
 		Quit: key.NewBinding(
 			key.WithKeys("q", "ctrl+c"),
 			key.WithHelp("q/ctrl+c", "quit"),
+		),
+		OpenLog: key.NewBinding(
+			key.WithKeys("o"),
+			key.WithHelp("o", "open debug log"),
 		),
 	}
 }
