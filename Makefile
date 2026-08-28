@@ -37,6 +37,7 @@ build-all:
 	@echo "Building for multiple platforms (version $(VERSION))..."
 	@mkdir -p bin
 	GOOS=linux GOARCH=amd64 go build -ldflags "$(LDFLAGS)" -o bin/lazycommands-linux-amd64 main.go
+	GOOS=linux GOARCH=arm64 go build -ldflags "$(LDFLAGS)" -o bin/lazycommands-linux-arm64 main.go
 	GOOS=darwin GOARCH=amd64 go build -ldflags "$(LDFLAGS)" -o bin/lazycommands-darwin-amd64 main.go
 	GOOS=darwin GOARCH=arm64 go build -ldflags "$(LDFLAGS)" -o bin/lazycommands-darwin-arm64 main.go
 	GOOS=windows GOARCH=amd64 go build -ldflags "$(LDFLAGS)" -o bin/lazycommands-windows-amd64.exe main.go

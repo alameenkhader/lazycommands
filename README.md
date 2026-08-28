@@ -4,13 +4,29 @@ A terminal UI tool for running shell commands sequentially with visual progress 
 
 https://github.com/user-attachments/assets/44122a95-036c-40c5-8e25-02d3f4d62be0
 
-## Prerequisites
-- LazyCommands is built with Go. You need Go 1.21 or later installed on your system.
-
 ## Install
-- Clone this repository
-- cd /path/to/lazycomands
-- `go install` - This will install the `lazycommands` binary to `$GOPATH/bin` (usually `~/go/bin`). Make sure `$GOPATH/bin` is in your PATH
+
+### Homebrew (macOS / Linux)
+
+```bash
+brew install alameenkhader/tap/lazycommands
+```
+
+### Install script (macOS / Linux)
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/alameenkhader/lazycommands/main/install.sh | sh
+```
+
+### From source
+
+Requires Go 1.21 or later:
+
+```bash
+go install github.com/alameenkhader/lazycommands@latest
+```
+
+All methods install the `lazycommands` binary; Homebrew and the install script also add an `lc` alias.
 
 ## Usage
 
