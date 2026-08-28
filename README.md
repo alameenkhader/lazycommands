@@ -6,17 +6,13 @@ https://github.com/user-attachments/assets/44122a95-036c-40c5-8e25-02d3f4d62be0
 
 ## Install
 
-### Homebrew (macOS / Linux)
-
-```bash
-brew install alameenkhader/tap/lazycommands
-```
-
 ### Install script (macOS / Linux)
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/alameenkhader/lazycommands/main/install.sh | sh
 ```
+
+This installs the `lazycommands` binary plus an `lc` alias.
 
 ### From source
 
@@ -25,8 +21,6 @@ Requires Go 1.21 or later:
 ```bash
 go install github.com/alameenkhader/lazycommands@latest
 ```
-
-All methods install the `lazycommands` binary; Homebrew and the install script also add an `lc` alias.
 
 ## Usage
 

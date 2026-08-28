@@ -24,11 +24,6 @@ LazyCommands follows [Semantic Versioning](https://semver.org/): `MAJOR.MINOR.PA
    ```bash
    gh release create vX.Y.Z bin/lazycommands-* --title "vX.Y.Z" --notes-file CHANGELOG.md
    ```
-6. **Update the Homebrew formula** in [alameenkhader/homebrew-tap](https://github.com/alameenkhader/homebrew-tap):
-   ```bash
-   curl -sL https://github.com/alameenkhader/lazycommands/archive/refs/tags/vX.Y.Z.tar.gz | shasum -a 256
-   ```
-   Then edit `Formula/lazycommands.rb`: bump the version in `url` and replace `sha256` with the new hash. Commit and push — `brew upgrade` picks it up immediately.
 
 ## Check Version
 
